@@ -80,13 +80,9 @@ class ParseMolecule {
             else if (element == 125) {
                 checkClosedBracket(curlyMap, order, value, formula, i, nextElement);
             }
-            // Check if first element is a letter
-            if ((element > 64 && element < 91) || (element > 96 && element < 123)) {
-
-                // Check if next element is not a lowercase letter
-                if (!(nextElement > 96 && nextElement < 123)) {
-                    writeValue(order.getLast(), key, value);
-                }
+            // If first element is a letter and next is a lowercase letter
+            if (((element > 64 && element < 91) || (element > 96 && element < 123)) && !(nextElement > 96 && nextElement < 123)) {
+                writeValue(order.getLast(), key, value);
             }
         }
         if (order.getLast() != atoms) {
