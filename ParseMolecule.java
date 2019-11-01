@@ -8,138 +8,89 @@ class ParseMolecule {
 
     public static void main(String[] args) {
         Map<String, Integer> test = new HashMap<String, Integer>();
-        //molecule("Mg(OH)2");
-        //System.out.println();
-        //molecule("K4[ON(SO3)2]2");
-        //test = getAtoms("As2{Be4C5[BCo3(CO2)3]2}4Cu5");
-        test = getAtoms("((H)2)[O]");
+        test = getAtoms("As2{Be4C5[BCo3(CO2)3]2}4Cu5");
         for (String k : test.keySet()) {
             System.out.print(k + " : " + test.get(k) + "  , ");
         }
-        //System.out.println("\nShould be :");
-        //System.out.println("As : 2  , Be : 16  , C : 44  , B : 8  , Co : 24  , O : 48  , Cu : 5");
-
+        System.out.println("\nShould be :");
+        System.out.println("As : 2  , Be : 16  , C : 44  , B : 8  , Co : 24  , O : 48  , Cu : 5");
     }
+
     public static Map<String,Integer> getAtoms(String formula) {
         Map<String, Integer> atoms = new HashMap<String, Integer>();
         Map<String, Integer> roundMap = new HashMap<String, Integer>();
         Map<String, Integer> squareMap = new HashMap<String, Integer>();
         Map<String, Integer> curlyMap = new HashMap<String, Integer>();
         LinkedList<Map<String, Integer>> order = new LinkedList<>();
-
-        atoms.clear();
-        order.clear();
         order.add(atoms);
-
+        
         for (int i = 0; i < formula.length(); i++) {
             char element = formula.charAt(i);
+            char nextElement;
             String key = "";
             int value = 1;
-
+            
+            // Check first element
             if (element > 96 && element < 123) {
-                key += formula.charAt(i - 1) + "" + element;
+                if (i == 0 || !(formula.charAt(i - 1) > 64 && formula.charAt(i - 1) < 91)) {
+                    throw new IllegalArgumentException();
+                }
+                else {
+                    key += formula.charAt(i - 1) + "" + element;
+                }
             }
             else {
                 key += element;
             }
 
-            // Check if first element is not last
             if (i < formula.length() - 1) {
-                char nextElement = formula.charAt(i + 1);
+                nextElement = formula.charAt(i + 1);
 
-                // Check if first element is a letter
-                if ((element > 64 && element < 91) || (element > 96 && element < 123)) {
-
-                     // Check if second element is a number
-                    if (nextElement > 47 && nextElement < 58) {
-                        value = checkNumber(nextElement, formula, i);
-
-                        writeValue(order.getLast(), key, value);
-
-                    }
-                    // If next element is a bracket or an uppercase letter
-                    else if (nextElement == 40 || nextElement == 41 || nextElement == 91 || nextElement == 93
-                    || nextElement == 123 || nextElement == 125 || (nextElement > 64 && nextElement < 91)) {
-
-                        writeValue(order.getLast(), key, value);
-                    }
+                // Check if next element is a number
+                if (nextElement > 47 && nextElement < 58) {
+                    value = checkNumber(nextElement, formula, i);  
                 }
-
-                // Check if first element is an opening round bracket
-                if (element == 40) {
-                    order.add(roundMap);
-                }
-                // Check if first element is an opening square bracket
-                else if (element == 91) {
-                    order.add(squareMap);
-                }
-                // Check if first element is an opening curly bracket
-                else if (element == 123) {
-                    order.add(curlyMap);
-                }
-
-                // Check if first element is a closing round bracket
-                if (element == 41) {
-                    if (nextElement > 47 && nextElement < 58) {
-                        value = checkNumber(nextElement, formula, i);
-                    }
-                    if (order.getLast() == roundMap) {
-                        closeBracket(roundMap, order.get(order.size() - 2), value);
-                        order.removeLast();
-                    }
-                }
-                // Check if first element is a closing square bracket
-                else if (element == 93) {
-                    if (nextElement > 47 && nextElement < 58) {
-                        value = checkNumber(nextElement, formula, i);
-                    }
-                    if (order.getLast() == squareMap) {
-                        closeBracket(squareMap, order.get(order.size() - 2), value);
-                        order.removeLast();
-                    }
-                }
-                // Check if first element is a closing curly bracket
-                else if (element == 125) {
-                    if (nextElement > 47 && nextElement < 58) {
-                        value = checkNumber(nextElement, formula, i);
-                    }
-                    if (order.getLast() == curlyMap) {
-                        closeBracket(curlyMap, order.get(order.size() - 2), value);
-                        order.removeLast();
-                    }
-                }
-
             }
-            // If first element is last
-            else  {
-                // If first element is a letter
-                if (element > 64 && element < 91) {
+            else {
+                nextElement = ' ';
+            }
+
+            // Check if first element is an opening round bracket
+            if (element == 40) {
+                order.add(roundMap);
+            }
+            // or an opening square bracket
+            else if (element == 91) {
+                order.add(squareMap);
+            }
+            // or an opening curly bracket
+            else if (element == 123) {
+                order.add(curlyMap);
+            }
+    
+            // Check if first element is a closing round bracket
+            if (element == 41) {
+                checkClosedBracket(roundMap, order, value, formula, i, nextElement);
+            }
+            // or a closing square bracket
+            else if (element == 93) {
+                checkClosedBracket(squareMap, order, value, formula, i, nextElement);
+            }
+            // or a closing curly bracket
+            else if (element == 125) {
+                checkClosedBracket(curlyMap, order, value, formula, i, nextElement);
+            }
+            // Check if first element is a letter
+            if ((element > 64 && element < 91) || (element > 96 && element < 123)) {
+
+                // Check if next element is not a lowercase letter
+                if (!(nextElement > 96 && nextElement < 123)) {
                     writeValue(order.getLast(), key, value);
                 }
-                else {
-                    // Check if first element is a closing round bracket
-                    if (element == 41) {
-                        if (order.getLast() == roundMap) {
-                            closeBracket(roundMap, order.get(order.size() - 2), value);
-                            order.removeLast();
-                        }
-                    }
-                    // Check if first element is a closing square bracket
-                    else if (element == 93) {
-                        if (order.getLast() == squareMap) {
-                            closeBracket(squareMap, order.get(order.size() - 2), value);
-                            order.removeLast();
-                        }
-                    }
-                    // Check if first element is a closing curly bracket
-                    else if (element == 125) {
-                        if (order.getLast() == curlyMap) {
-                            closeBracket(curlyMap, order.get(order.size() - 2), value);
-                            order.removeLast();
-                        }
-                    }
-                }
             }
+        }
+        if (order.getLast() != atoms) {
+            throw new IllegalArgumentException();
         }
         return atoms;
     }
@@ -184,5 +135,17 @@ class ParseMolecule {
                 previousMap.put(k, tempMap.get(k));
             }
         }
+    }
+
+    private static void checkClosedBracket(Map map, LinkedList<Map<String, Integer>> order, int value, String formula, int i, char nextElement) {
+
+        if (order.getLast() != map) {
+            throw new IllegalArgumentException();
+        }
+        if (nextElement > 47 && nextElement < 58) {
+            value = checkNumber(nextElement, formula, i);
+        }
+        closeBracket(map, order.get(order.size() - 2), value);
+        order.removeLast();
     }
 }
