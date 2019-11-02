@@ -1,4 +1,4 @@
-var puzzle = [
+let puzzle = [
     [5,3,0,0,7,0,0,0,0],
     [6,0,0,1,9,5,0,0,0],
     [0,9,8,0,0,0,0,6,0],
@@ -9,9 +9,9 @@ var puzzle = [
     [0,0,0,4,1,9,0,0,5],
     [0,0,0,0,8,0,0,7,9]];
 
-sudokuSolver(puzzle);
+sudoku(puzzle);
 
-function sudokuSolver(puzzle) {
+function sudoku(puzzle) {
 
     let numbersCount = [0, 0, 0, 0, 0, 0, 0, 0, 0];
     let emptySpace = [[9, 9, 9, 9, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9, 9, 9, 9], [9, 9, 9, 9, 9, 9, 9, 9, 9]];
@@ -21,6 +21,7 @@ function sudokuSolver(puzzle) {
     let boxCount = 0;
     for (let row = 0; row < 9; row++) {
         if (row > 0 && row % 3 === 0) {boxCount += 3};
+
         for (let col = 0; col < 9; col++) {
             if (puzzle[row][col] != 0) {
                 numbersCount[puzzle[row][col] - 1]++;
@@ -35,7 +36,13 @@ function sudokuSolver(puzzle) {
     let maxNumbers = new Array();
     let found = false;
 
-    for (let t = 0; t < 100; t++) {
+    while (empty > 0) {
+
+        // Copie du sudoku pour le modèle de boîtes
+        let boxPuzzle = new Array();
+        for (let puz = 0; puz < 9; puz++) {
+            boxPuzzle.push(puzzle[puz].slice());
+        }
 
         // Check which number is most present
         let max = 0;
@@ -46,6 +53,9 @@ function sudokuSolver(puzzle) {
                 maxNumber = i + 1;
             }
         }
+        console.log(numbersCount);
+        console.log(maxNumbers);
+        console.log(maxNumber);
         boxCount = 0;
         let isInRow = false;
         let isInCol = false;
@@ -55,7 +65,6 @@ function sudokuSolver(puzzle) {
         let rowCheck = 0;
         let cols = new Array();
         let rows = new Array();
-        // Check if chosen number is in the row
 
 // ##################################################################################################
 
@@ -80,7 +89,19 @@ function sudokuSolver(puzzle) {
                     if (!cols.includes(col)) {
                         cols.push(col);
                     }
+
+                    // On remplit toute la ligne dans le modèle de boîtes
+                    for (let p = 0; p < 9; p++) {
+                        if (p != col) {
+                            boxPuzzle[row][p] = "X";
+                        }
+                        if (p != row) {
+                            boxPuzzle[p][col] = "X";
+                        }
+                    }
+
                     break;
+
                 }
             }
 
@@ -119,7 +140,6 @@ function sudokuSolver(puzzle) {
                                 numberCheck = false;
 
                                 // Et on arrête de chercher
-                                console.log("break");
                                 break;
                             }
 
@@ -131,7 +151,7 @@ function sudokuSolver(puzzle) {
     
                                 // Et on indique dans quelle case l'insérer
                                 colCheck = testCol;
-                                console.log("validé");
+                                rowCheck = row;
                             }
                         }
                     }
@@ -139,13 +159,24 @@ function sudokuSolver(puzzle) {
 
                 // A la fin du parcours, si le chiffre est validé, on l'insère dans la case
                 if (numberCheck) {
-                    puzzle[row][colCheck] = maxNumber;
+                    puzzle[rowCheck][colCheck] = maxNumber;
+                    boxPuzzle[rowCheck][colCheck] = maxNumber;
                     numbersCount[maxNumber - 1]++;
-                    emptySpace[0][row]--;
+                    emptySpace[0][rowCheck]--;
                     emptySpace[1][colCheck]--;
                     emptySpace[2][boxCount + Math.trunc(colCheck / 3)]--;
                     empty--;
                     found = true;
+
+                    // On remplit toute la ligne et la colonne dans le modèle de boîtes
+                    for (let p = 0; p < 9; p++) {
+                        if (p != colCheck) {
+                            boxPuzzle[rowCheck][p] = "X";
+                        }
+                        if (p != rowCheck) {
+                            boxPuzzle[p][colCheck] = "X";
+                        }
+                    }
                 }
             }
         }
@@ -174,6 +205,17 @@ function sudokuSolver(puzzle) {
                     if (!rows.includes(row)) {
                         rows.push(row);
                     }
+                    
+                    // On remplit toute la colone dans le modèle de boîtes
+                    for (let p = 0; p < 9; p++) {
+                        if (p != col) {
+                            boxPuzzle[row][p] = "X";
+                        }
+                        if (p != row) {
+                            boxPuzzle[p][col] = "X";
+                        }
+                    }
+
                     break;
                 }
             }
@@ -213,7 +255,6 @@ function sudokuSolver(puzzle) {
                                 numberCheck = false;
 
                                 // Et on arrête de chercher
-                                console.log("break");
                                 break;
                             }
 
@@ -225,7 +266,7 @@ function sudokuSolver(puzzle) {
     
                                 // Et on indique dans quelle case l'insérer
                                 rowCheck = testRow;
-                                console.log("validé");
+                                colCheck = col;
                             }
                         }
                     }
@@ -233,22 +274,86 @@ function sudokuSolver(puzzle) {
 
                 // A la fin du parcours, si le chiffre est validé, on l'insère dans la case
                 if (numberCheck) {
-                    puzzle[rowCheck][col] = maxNumber;
+                    puzzle[rowCheck][colCheck] = maxNumber;
+                    boxPuzzle[rowCheck][colCheck] = maxNumber;
                     numbersCount[maxNumber - 1]++;
                     emptySpace[0][rowCheck]--;
-                    emptySpace[1][col]--;
-                    emptySpace[2][boxCount + Math.trunc(col / 3)]--;
+                    emptySpace[1][colCheck]--;
+                    emptySpace[2][boxCount + Math.trunc(colCheck / 3)]--;
                     empty--;
                     found = true;
+
+                    // On remplit toute la ligne et la colonne dans le modèle de boîtes
+                    for (let p = 0; p < 9; p++) {
+                        if (p != colCheck) {
+                            boxPuzzle[rowCheck][p] = "X";
+                        }
+                        if (p != rowCheck) {
+                            boxPuzzle[p][colCheck] = "X";
+                        }
+                    }
                 }
             }
         }
 
         // ##################################################################################################
 
+        // Vérification box par box
+        for (let box = 0; box < 9; box++) {
 
-        if (!found) {
-            maxNumbers.push(maxNumber);
+            numberCheck === false;
+            let nextBox = false;
+
+            if (box > 0 && box % 3 === 0) {boxCount += 3};
+            let rowStart = 3 * Math.trunc(box / 3);
+            let colStart = (box - rowStart) * 3;
+            
+            // On parcourt chaque ligne de la box
+            for (let row = rowStart; row < rowStart + 3; row++) {
+                if (nextBox) {break;};
+
+                // Puis chaque colonne de la box pour vérifier si le chiffre est présent
+                for (let col = colStart; col < colStart + 3; col++) {
+
+                    if (boxPuzzle[row][col] === 0) {
+                        if (!numberCheck) {
+                            numberCheck = true;
+                            rowCheck = row;
+                            colCheck = col;
+                        }
+                        else {
+                            numberCheck = false;
+                            nextBox = true;
+                            break;
+                        }
+                    }
+                    if (puzzle[row][col] === maxNumber) {
+                        numberCheck = false;
+                        nextBox = true;
+                        break;
+                    }
+
+
+                }
+            }
+
+            // A la fin du parcours, si le chiffre est validé, on l'insère dans la case
+            if (numberCheck) {
+                puzzle[rowCheck][colCheck] = maxNumber;
+                numbersCount[maxNumber - 1]++;
+                emptySpace[0][rowCheck]--;
+                emptySpace[1][colCheck]--;
+                emptySpace[2][boxCount + Math.trunc(colCheck / 3)]--;
+                empty--;
+                found = true;
+            }
+        }
+
+        // ######################################################################################""
+
+       
+       if (!found) {
+           maxNumbers.push(maxNumber);
         }
         else {
             maxNumbers = [];
@@ -260,9 +365,12 @@ function sudokuSolver(puzzle) {
         //console.log(emptySpace[2]);
         console.log("empty spaces : " + empty);
         //console.log("maxNumber : " + maxNumber);
-        console.log("cols filled : " + cols);
-        console.log("maxNumbers : " + maxNumbers);
+        //console.log("cols filled : " + cols);
+        //console.log("maxNumbers : " + maxNumbers);
     }
 
+    console.log(puzzle);
+
+    return puzzle;
 
 }
