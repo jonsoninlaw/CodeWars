@@ -6,7 +6,7 @@ var puzzle = [
     [4,0,0,8,0,3,0,0,1],
     [7,0,0,0,2,0,0,0,6],
     [0,6,0,0,0,0,2,8,0],
-    [0,0,0,4,1,9,6,0,5],
+    [0,0,0,4,1,9,0,0,5],
     [0,0,0,0,8,0,0,7,9]];
 
 sudokuSolver(puzzle);
@@ -31,14 +31,17 @@ function sudokuSolver(puzzle) {
             }
         }
     }
+    
+    let maxNumbers = new Array();
+    let found = false;
 
-    //while (empty > 0) {
+    for (let t = 0; t < 100; t++) {
 
         // Check which number is most present
         let max = 0;
         let maxNumber = 0;
         for (let i = 0; i < 9; i++) {
-            if (numbersCount[i] > max) {
+            if (numbersCount[i] > max && !maxNumbers.includes(i + 1) && numbersCount[i] < 9) {
                 max = numbersCount[i];
                 maxNumber = i + 1;
             }
@@ -139,18 +142,28 @@ function sudokuSolver(puzzle) {
                     emptySpace[1][colCheck]--;
                     emptySpace[2][boxCount + Math.trunc(colCheck / 3)]--;
                     empty--;
-                    
+                    found = true;
                 }
             }
         }
-    //}
 
-    //console.log("numbersCount : " + numbersCount);
-    //console.log(emptySpace[0]);
-    //console.log(emptySpace[1]);
-    //console.log(emptySpace[2]);
-    console.log("empty spaces : " + empty);
-    //console.log("maxNumber : " + maxNumber);
-    console.log("cols filled : " + cols);
+
+        if (!found) {
+            maxNumbers.push(maxNumber);
+        }
+        else {
+            maxNumbers = [];
+            found = false;
+        }
+        //console.log("numbersCount : " + numbersCount);
+        //console.log(emptySpace[0]);
+        //console.log(emptySpace[1]);
+        //console.log(emptySpace[2]);
+        console.log("empty spaces : " + empty);
+        //console.log("maxNumber : " + maxNumber);
+        console.log("cols filled : " + cols);
+        console.log("maxNumbers : " + maxNumbers);
+    }
+
 
 }
