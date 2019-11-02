@@ -54,7 +54,10 @@ function sudokuSolver(puzzle) {
         let colCheck = 0;
         let rowCheck = 0;
         let cols = new Array();
+        let rows = new Array();
         // Check if chosen number is in the row
+
+// ##################################################################################################
 
         // Vérification ligne par ligne
         for (let row = 0; row < 9; row++) {
@@ -146,6 +149,102 @@ function sudokuSolver(puzzle) {
                 }
             }
         }
+
+
+        // ##################################################################################################
+
+        // Vérification colonne par colonne
+        for (let col = 0; col < 9; col++) {
+
+            // On initialise les booléens à faux
+            isInRow = false;
+            isInCol = false;
+            numberCheck === false;
+
+            
+            // On parcourt la colonne entière pour vérifier que le chiffre n'est pas présent
+            for (let row = 0; row < 9; row++) {
+                if (row > 0 && row % 3 === 0) {boxCount += 3};
+                
+                // Si il est présent
+                if (!isInCol && puzzle[row][col] === maxNumber) {
+                    isInCol = true;
+
+                    // On ajoute le numéro de la ligne à la liste
+                    if (!rows.includes(row)) {
+                        rows.push(row);
+                    }
+                    break;
+                }
+            }
+
+            // Si il n'est pas présent
+            if (!isInCol) {
+
+                // On parcourt la colonne ligne par ligne
+                for (let testRow = 0; testRow < 9; testRow++) {
+                    isInRow = false;
+
+                    // Si la case est vide et que le nombre n'existe pas déjà dans la même ligne
+                    if (puzzle[testRow][col] === 0 && !rows.includes(testRow)) {
+
+                        // On parcourt toutes les cases sur la même ligne
+                        for (let testCol = 0; testCol < 9; testCol++) {
+
+                            // Si le nombre est présent dans la case ou a déjà été repéré
+                            if (!isInRow && puzzle[testRow][testCol] === maxNumber) {
+
+                                // On indique qu'il est présent
+                                isInRow = true;
+
+                                // On ajoute la ligne à la liste
+                                rows.push(testRow);
+                                break;
+                            }
+                        }
+
+                        // Si le chiffre n'est pas présent sur la ligne
+                        if (!isInRow) {
+
+                            // Si il a déjà été validé
+                            if (numberCheck) {
+                            
+                                // On indique qu'il n'est plus validé
+                                numberCheck = false;
+
+                                // Et on arrête de chercher
+                                console.log("break");
+                                break;
+                            }
+
+                            // Sinon
+                            else {
+
+                                // On valide le chiffre
+                                numberCheck = true;
+    
+                                // Et on indique dans quelle case l'insérer
+                                rowCheck = testRow;
+                                console.log("validé");
+                            }
+                        }
+                    }
+                }
+
+                // A la fin du parcours, si le chiffre est validé, on l'insère dans la case
+                if (numberCheck) {
+                    puzzle[rowCheck][col] = maxNumber;
+                    numbersCount[maxNumber - 1]++;
+                    emptySpace[0][rowCheck]--;
+                    emptySpace[1][col]--;
+                    emptySpace[2][boxCount + Math.trunc(col / 3)]--;
+                    empty--;
+                    found = true;
+                }
+            }
+        }
+
+        // ##################################################################################################
 
 
         if (!found) {
