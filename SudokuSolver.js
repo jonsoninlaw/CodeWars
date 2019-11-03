@@ -51,7 +51,6 @@ function sudoku(puzzle) {
         // Fill non valid spaces with X in the puzzle clone
         for (let row = 0; row < 9; row++) {
             isInRow = false;
-            numberCheck === false;
             
             for (let col = 0; col < 9; col++) {
 
@@ -72,7 +71,6 @@ function sudoku(puzzle) {
 
         // Check each mini-puzzle
         for (let box = 0; box < 9; box++) {
-            numberCheck === false;
             let nextBox = false;
             let rowStart = 3 * Math.trunc(box / 3);
             let colStart = (box - rowStart) * 3;
