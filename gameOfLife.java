@@ -32,8 +32,8 @@ public class gameOfLife {
             }
         }
 
-        for (int r = 0; r < cellsCopy.length - 1; r++) {
-            for (int c = 0; c < cellsCopy[0].length - 1; c++) {
+        for (int r = 0; r < cellsCopy.length; r++) {
+            for (int c = 0; c < cellsCopy[0].length; c++) {
                 count = 0;
                 if (cellsCopy[r][c] == 0) {
                     for (int row = r - 1; row < r + 2; row++) {
@@ -67,7 +67,48 @@ public class gameOfLife {
             }
         }
 
-        return nextGen;
+        int minR = -1;
+        int maxR = -1;
+        int minC = -1;
+        int maxC = -1;
+        for (int r = 0; r < nextGen.length; r++) {
+            for (int c = 0; c < nextGen[0].length; c++) {
+                if (nextGen[r][c] == 1 && minR == -1) {
+                    minR = r;
+                }
+            }
+        }
+        for (int r = nextGen.length - 1; r >= 0; r--) {
+            for (int c = 0; c < nextGen[0].length; c++) {
+                if (nextGen[r][c] == 1 && maxR == -1) {
+                    maxR = r;
+                }
+            }
+        }
+        for (int c = 0; c < nextGen[0].length; c++) {
+            for (int r = 0; r < nextGen.length; r++) {
+                if (nextGen[r][c] == 1 && minC == -1) {
+                    minC = c;
+                }
+            }
+        }
+        for (int c = nextGen[0].length - 1; c >= 0; c--) {
+            for (int r = 0; r < nextGen.length; r++) {
+                if (nextGen[r][c] == 1 && maxC == -1) {
+                    maxC = c;
+                }
+            }
+        }
+
+
+        int[][] lastGen = new int[maxR - minR + 1][maxC - minC + 1];
+        for (int r = 0; r < lastGen.length; r++) {
+            for (int c = 0; c < lastGen[0].length; c++) {
+                lastGen[r][c] = nextGen[r + minR][c + minC];
+            }
+        }
+
+        return lastGen;
     }
     
   }
