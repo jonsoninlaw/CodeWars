@@ -4,9 +4,9 @@ public class Main {
 
     public static void main(String[] args) {
         String shape = String.join("\n", new String[] {
-                "+------------+",
-                "|            |",
-                "|            |",
+                "  +----------+",
+                "  |          |",
+                "+-+          |",
                 "|            |",
                 "+------+-----+",
                 "|      |     |",
