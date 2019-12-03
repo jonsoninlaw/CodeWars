@@ -17,9 +17,8 @@ public class BreakPieces {
             boolean found = false;
             for (int row = 0; row < house.length; row++) {
                 for (int col = 0; col < house[row].length(); col++) {
-                    if (house[row].charAt(col) == '+' || house[row].charAt(col) == 'O') {
+                    if (house[row].charAt(col) == '+') {
                         coord.add(new int[] {row, col, 1});
-                        //house[row] = house[row].substring(0, col) + " " + house[row].substring(col + 1, house[row].length());
                         found = true;
                         break;
                     }
@@ -43,60 +42,24 @@ public class BreakPieces {
             while (!loop) {
                 row += ROW_MOVES[direction];
                 col += COL_MOVES[direction];
-                if (house[row].charAt(col) == '+' || house[row].charAt(col) == 'o' || house[row].charAt(col) == 'O') {
+                if (house[row].charAt(col) == '+') {
                     if (coord.size() != 0 && row == coord.getFirst()[0] && col == coord.getFirst()[1]) {
                         loop = true;
-                        house[row] = house[row].substring(0, col) + "o" + house[row].substring(col + 1, house[row].length());
                     } else {
                         int[] check = checkDirections(direction, house, row, col);
 
-                        if (house[row].charAt(col) == 'O' && checkThrough(house, row, col, direction)) {
-                            house[row] = house[row].substring(0, col) + "o" + house[row].substring(col + 1, house[row].length());
-                        }
-                        else if (check[0] != direction) {
+                        if (check[0] != direction) {
                             if (check[1] == 2) {
                                 if (check[2] == 1) {
-                                    switch (direction) {
-                                        case 0:
-                                            house[row] = house[row].substring(0, col - 1) + " O" + house[row].substring(col + 1, house[row].length());
-                                            break;
-                                        case 1:
-                                            house[row] = house[row].substring(0, col) + "O" + house[row].substring(col + 1, house[row].length());
-                                            house[row - 1] = house[row - 1].substring(0, col) + " " + house[row - 1].substring(col + 1, house[row - 1].length());
-                                            break;
-                                        case 2:
-                                            house[row] = house[row].substring(0, col) + "O " + house[row].substring(col + 2, house[row].length());
-                                            break;
-                                        case 3:
-                                            house[row + 1] = house[row + 1].substring(0, col) + " " + house[row + 1].substring(col + 1, house[row + 1].length());
-                                            house[row] = house[row].substring(0, col) + "O" + house[row].substring(col + 1, house[row].length());
-                                            break;
-                                    }
+
                                 } else {
-                                    switch (check[0]) {
-                                        case 0:
-                                            house[row] = house[row].substring(0, col) + "O " + house[row].substring(col + 2, house[row].length());
-                                            break;
-                                        case 1:
-                                            house[row] = house[row].substring(0, col) + "O" + house[row].substring(col + 1, house[row].length());
-                                            house[row + 1] = house[row + 1].substring(0, col) + " " + house[row + 1].substring(col + 1, house[row + 1].length());
-                                            break;
-                                        case 2:
-                                            house[row] = house[row].substring(0, col - 1) + " O" + house[row].substring(col + 1, house[row].length());
-                                            break;
-                                        case 3:
-                                            house[row - 1] = house[row - 1].substring(0, col) + " " + house[row - 1].substring(col + 1, house[row - 1].length());
-                                            house[row] = house[row].substring(0, col) + "O" + house[row].substring(col + 1, house[row].length());
-                                            break;
-                                    }
+
                                 }
                             }
                             direction = check[0];
                             coord.add(new int[]{row, col, check[1], check[2]});
                         }
-                        if (check[1] == 1) {
-                            house[row] = house[row].substring(0, col) + "o" + house[row].substring(col + 1, house[row].length());
-                        }
+
                         if (row > maxRow) {
                             maxRow = row;
                         }
@@ -166,35 +129,6 @@ public class BreakPieces {
         return new int[] {nextDirection, cross, straight};
     }
 
-    private static boolean checkThrough(String[] house, int row, int col, int direction) {
-        boolean through = false;
-        try {
-            switch (direction) {
-                case 0:
-                    if (house[row].charAt(col + 2) == '-' || house[row].charAt(col + 2) == 'O' || house[row].charAt(col + 2) == '+') {
-                        through = true;
-                    }
-                    break;
-                case 1:
-                    if (house[row + 2].charAt(col) == '-' || house[row + 2].charAt(col) == 'O' || house[row].charAt(col + 2) == '+') {
-                        through = true;
-                    }
-                    break;
-                case 2:
-                    if (house[row].charAt(col - 2) == '-' || house[row].charAt(col - 2) == 'O' || house[row].charAt(col + 2) == '+') {
-                        through = true;
-                    }
-                    break;
-                case 3:
-                    if (house[row - 2].charAt(col) == '-' || house[row - 2].charAt(col) == 'O' || house[row].charAt(col + 2) == '+') {
-                        through = true;
-                    }
-                    break;
-            }
-        } catch (IndexOutOfBoundsException e) {}
-        return through;
-    }
-
     private static String createShape(LinkedList<int[]> coord, int rowSize, int rowOffset, int colSize, int colOffset) {
 
         String[][] earlyShape = new String[rowSize][colSize];
@@ -250,35 +184,42 @@ public class BreakPieces {
             int[] prevCross = coord.get(i);
             int[] currentCross = coord.get(i + 1);
 
-            if (currentCross[2] != 1) {
-                if (currentCross[3] == 1) {
-                    stop = true;
-                } else {
-                    stop = false;
-                }
-            }
 
             if (currentCross[2] == 1 && !stop) {
+                house[currentCross[0]] = house[currentCross[0]].substring(0, currentCross[1]) + " " + house[currentCross[0]].substring(currentCross[1] + 1, house[currentCross[0]].length());
+            }
+            if (prevCross[2] == 1 && !stop) {
+                house[prevCross[0]] = house[prevCross[0]].substring(0, prevCross[1]) + " " + house[prevCross[0]].substring(prevCross[1] + 1, house[currentCross[0]].length());
+            }
+
+            if ((currentCross[2] == 1 || prevCross[2] == 1) && !stop) {
                 if (currentCross[0] == prevCross[0]) {
                     if (currentCross[1] > prevCross[1]) {
-                        for (int j = prevCross[1] + 1; j <= currentCross[1]; j++) {
+                        for (int j = prevCross[1] + 1; j < currentCross[1]; j++) {
                             house[currentCross[0]] = house[currentCross[0]].substring(0, j) + " " + house[currentCross[0]].substring(j + 1, house[currentCross[0]].length());
                         }
                     } else {
-                        for (int j = prevCross[1] - 1; j >= currentCross[1]; j--) {
+                        for (int j = prevCross[1] - 1; j > currentCross[1]; j--) {
                             house[currentCross[0]] = house[currentCross[0]].substring(0, j) + " " + house[currentCross[0]].substring(j + 1, house[currentCross[0]].length());
                         }
                     }
                 } else {
                     if (currentCross[0] > prevCross[0]) {
-                        for (int j = prevCross[0] + 1; j <= currentCross[0]; j++) {
+                        for (int j = prevCross[0] + 1; j < currentCross[0]; j++) {
                             house[j] = house[j].substring(0, currentCross[1]) + " " + house[j].substring(currentCross[1] + 1, house[j].length());
                         }
                     } else {
-                        for (int j = prevCross[0] - 1; j >= currentCross[0]; j--) {
+                        for (int j = prevCross[0] - 1; j > currentCross[0]; j--) {
                             house[j] = house[j].substring(0, currentCross[1]) + " " + house[j].substring(currentCross[1] + 1, house[j].length());
                         }
                     }
+                }
+            }
+            if (currentCross[2] != 1) {
+                if (currentCross[3] == 1) {
+                    stop = true;
+                } else {
+                    stop = false;
                 }
             }
         }

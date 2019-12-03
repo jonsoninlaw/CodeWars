@@ -33,7 +33,16 @@ public class Main {
                 "|      |     |",
                 "+------+-----+"});
 
-        String[] result = BreakPieces.process(shape3);
+        String shape4 = String.join("\n", new String[] {
+                "   +-----+       ",
+                "   |     |       ",
+                "   |     |       ",
+                "   +-----+-----+ ",
+                "         |     | ",
+                "         |     | ",
+                "         +-----+ "});
+
+        String[] result = BreakPieces.process(shape4);
         for (String elt : result) {
             System.out.println(elt);
         }
