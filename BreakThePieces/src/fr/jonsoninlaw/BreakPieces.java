@@ -10,58 +10,105 @@ public class BreakPieces {
         String[] house = shape.split("\n");
         LinkedList<int[]> coord = new LinkedList<>();
         // directions : "right", "down", "left", "up"
-        int[] rowMoves = {0, 1, 0, -1};
-        int[] colMoves = {1, 0, -1, 0};
-        boolean found = false;
-        for (int i = 0; i < house.length; i++) {
-            for (int j = 0; j < house[i].length(); j++) {
-                if (house[i].charAt(j) == '+') {
-                    coord.add(new int[] {i, j, 1});
-                    found = true;
+        int[] ROW_MOVES = {0, 1, 0, -1};
+        int[] COL_MOVES = {1, 0, -1, 0};
+        boolean keepGoing = true;
+        while (keepGoing){
+            coord.clear();
+            boolean found = false;
+            for (int row = 0; row < house.length; row++) {
+                for (int col = 0; col < house[row].length(); col++) {
+                    if (house[row].charAt(col) == '+') {
+                        coord.add(new int[] {row, col});
+                        //house[row] = house[row].substring(0, col) + " " + house[row].substring(col + 1, house[row].length());
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
                     break;
                 }
             }
-            if (found) {
-                break;
-            }
-        }
-        int direction = 0;
-        int row = coord.getLast()[0];
-        int col = coord.getLast()[1];
-        int maxRow = 0;
-        int minRow = Integer.MAX_VALUE;
-        int maxCol = 0;
-        int minCol = Integer.MAX_VALUE;
-        boolean loop = false;
-        while (!loop) {
-            row += rowMoves[direction];
-            col += colMoves[direction];
-            if (house[row].charAt(col) == '+') {
-                if (coord.size() != 0 && row == coord.getFirst()[0] && col == coord.getFirst()[1]) {
-                    loop = true;
-                } else {
-                    int[] check = checkDirections(direction, house, row, col);
-                    if (check[0] != direction) {
-                        direction = check[0];
-                        coord.add(new int[]{row, col, check[1]});
-                    }
-                    if (row > maxRow) {
-                        maxRow = row;
-                    }
-                    if (col > maxCol) {
-                        maxCol = col;
-                    }
-                    if (row < minRow) {
-                        minRow = row;
-                    }
-                    if (col < minCol) {
-                        minCol = col;
+            found = false;
+            int direction = 0;
+            int row = coord.getLast()[0];
+            int col = coord.getLast()[1];
+            int maxRow = 0;
+            int minRow = Integer.MAX_VALUE;
+            int maxCol = 0;
+            int minCol = Integer.MAX_VALUE;
+            boolean loop = false;
+            while (!loop) {
+                row += ROW_MOVES[direction];
+                col += COL_MOVES[direction];
+                if (house[row].charAt(col) == '+') {
+                    found = true;
+                    if (coord.size() != 0 && row == coord.getFirst()[0] && col == coord.getFirst()[1]) {
+                        loop = true;
+                        house[row] = house[row].substring(0, col) + " " + house[row].substring(col + 1, house[row].length());
+                    } else {
+                        int[] check = checkDirections(direction, house, row, col);
+                        if (check[1] == 1) {
+                            house[row] = house[row].substring(0, col) + " " + house[row].substring(col + 1, house[row].length());
+                        }
+                        if (check[0] != direction) {
+                            if (check[1] == 2) {
+                                if (check[2] == 1) {
+                                    switch (direction) {
+                                        case 0:
+                                            house[row] = house[row].substring(0, col - 1) + " " + house[row].substring(col, house[row].length());
+                                            break;
+                                        case 1:
+                                            house[row - 1] = house[row - 1].substring(0, col) + " " + house[row - 1].substring(col + 1, house[row - 1].length());
+                                            break;
+                                        case 2:
+                                            house[row] = house[row].substring(0, col + 1) + " " + house[row].substring(col + 2, house[row].length());
+                                            break;
+                                        case 3:
+                                            house[row + 1] = house[row + 1].substring(0, col) + " " + house[row + 1].substring(col + 1, house[row + 1].length());
+                                            break;
+                                    }
+                                } else {
+                                    switch (check[0]) {
+                                        case 0:
+                                            house[row] = house[row].substring(0, col + 1) + " " + house[row].substring(col + 2, house[row].length());
+                                            break;
+                                        case 1:
+                                            house[row + 1] = house[row + 1].substring(0, col) + " " + house[row + 1].substring(col + 1, house[row + 1].length());
+                                            break;
+                                        case 2:
+                                            house[row] = house[row].substring(0, col - 1) + " " + house[row].substring(col, house[row].length());
+                                            break;
+                                        case 3:
+                                            house[row - 1] = house[row - 1].substring(0, col) + " " + house[row - 1].substring(col + 1, house[row - 1].length());
+                                            break;
+                                    }
+                                }
+                            }
+                            direction = check[0];
+                            coord.add(new int[]{row, col, check[1]});
+                        }
+                        if (row > maxRow) {
+                            maxRow = row;
+                        }
+                        if (col > maxCol) {
+                            maxCol = col;
+                        }
+                        if (row < minRow) {
+                            minRow = row;
+                        }
+                        if (col < minCol) {
+                            minCol = col;
+                        }
                     }
                 }
             }
+            if (!found) {
+                keepGoing = false;
+            }
+            coord.add(coord.getFirst());
+            brokenPieces.add(createShape(coord, maxRow - minRow + 1, minRow, maxCol - minCol + 1, minCol));
         }
-        coord.add(coord.getFirst());
-        brokenPieces.add(createShape(coord, maxRow - minRow + 1, minRow, maxCol - minCol + 1, minCol));
 
         String[] broken = new String[brokenPieces.size()];
         broken = brokenPieces.toArray(broken);
@@ -74,41 +121,42 @@ public class BreakPieces {
                                     {"left", "down", "right"},
                                     {"up", "left", "down"},
                                     {"right", "up", "left"}};*/
-        int[][] directions =    {{1, 0, 3},
+        int[][] DIRECTIONS =    {{1, 0, 3},
                                 {2, 1, 0},
                                 {3, 2, 1},
                                 {0, 3, 2}};
-        int[][] rowMoves =  {{1, 0, -1},
+        int[][] ROW_MOVES =  {{1, 0, -1},
                             {0, 1, 0},
                             {-1, 0, 1},
                             {0, -1, 0}};
-        int[][] colMoves =  {{0, 1, 0},
+        int[][] COL_MOVES =  {{0, 1, 0},
                             {-1, 0, 1},
                             {0, -1, 0},
                             {1, 0, -1}};
-        int delete = 1;
 
         boolean found = false;
-        int directionCount = 0;
+        int cross = 0;
+        int nextDirection = 0;
+        int straight = 0;
 
         for (int i = 0; i < 3; i++) {
             try {
-                int currentRow = row + rowMoves[direction][i];
-                int currentCol = col + colMoves[direction][i];
+                int currentRow = row + ROW_MOVES[direction][i];
+                int currentCol = col + COL_MOVES[direction][i];
                 if (house[currentRow].charAt(currentCol) == '|' || house[currentRow].charAt(currentCol) == '-') {
                     if (!found) {
-                        direction = directions[direction][i];
+                        nextDirection = DIRECTIONS[direction][i];
                         found = true;
                     }
-                    directionCount++;
+                    if (direction == DIRECTIONS[direction][i]) {
+                        straight = 1;
+                    }
+                    cross++;
                 }
             } catch (Exception e) {}
         }
 
-        if (directionCount > 1) {
-            delete = 0;
-        }
-        return new int[] {direction, delete};
+        return new int[] {nextDirection, cross, straight};
     }
 
     private static String createShape(LinkedList<int[]> coord, int rowSize, int rowOffset, int colSize, int colOffset) {
